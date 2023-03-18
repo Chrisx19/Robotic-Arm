@@ -1,4 +1,4 @@
-# Robotic-Arm
+# Robotic-Arm (In Progress)
 ## Feb 2023 - Current
 Robotic Arm integrated team project for class competition on robotics.
 
