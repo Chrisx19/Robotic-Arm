@@ -1,22 +1,21 @@
 #include <ros.h>                  //ROS API for cpp
-#include <geometry_msgs/Twist.h>  //The one moving the motors from joystick
+#include <arm_package/Joints.h>
 #include <std_msgs/Int32.h>   
 #include <std_msgs/Bool.h>
 #include <SoftwareSerial.h>
 
 #include <AccelStepper.h>
 
-AccelStepper stepper;
+AccelStepper stepper1(1, 2, 3);
+AccelStepper stepper2(1, 4, 5);
 
 bool  g_Joints_EN_Joy = false;  //global default for joint enable
 const int Joints_EN_Pin = 13;   //out pin @ arduino mega
 
 ros::NodeHandle  nh;                                          //object 
-void arm_joint_cb(const geometry_msgs::Twist& Joints_data);   //init function
-void joints_EN_cb(const std_msgs::Bool&       Joints_EN);     //init function
+void arm_joint_cb(const arm_package::Joints& Joints_data);   //init function
 
-ros::Subscriber<std_msgs::Bool>       joint_EN_sub("joints_EN", &joints_EN_cb);     //ros sub
-ros::Subscriber<geometry_msgs::Twist> Arm_joint_sub("joints", &arm_joint_cb);       //ros sub
+ros::Subscriber<arm_package::Joints> Arm_joint_sub("joints", &arm_joint_cb);       //ros sub
 
 //std_msgs::Int32 velocity;
 //ros::Publisher vel_cmd("vel_cmd", &velocity);
@@ -25,11 +24,11 @@ void setup()
 {
   nh.initNode();
   //  nh.advertise(vel_cmd);
-  nh.subscribe(joint_EN_sub);
   nh.subscribe(Arm_joint_sub);
 
   pinMode(Joints_EN_Pin, OUTPUT);
-  stepper.setMaxSpeed(1000000);
+  stepper1.setMaxSpeed(1000000);
+  stepper2.setMaxSpeed(1000000);
   
 }
 
@@ -50,21 +49,18 @@ That means we can manually move the motor with our hands and read the encoder va
     digitalWrite(Joints_EN_Pin, LOW);
   }
 
-  stepper.runSpeed();
+  stepper1.runSpeed();
+  stepper2.runSpeed();
   nh.spinOnce();
   //  delay(1);
 }
 
-void arm_joint_cb(const geometry_msgs::Twist& Joints_data)  //callback function from subscribe on driving each joins
+void arm_joint_cb(const arm_package::Joints& Joints_data)  //callback function from subscribe on driving each joins
 {
-  int forward_x = Joints_data.linear.x;
+  int forward_j_1 = Joints_data.Joint_1;
+  int forward_j_2 = Joints_data.Joint_2;
 
-  stepper.setSpeed(forward_x);
-}
-
-void joints_EN_cb(const std_msgs::Bool& Joints_EN)        //callback from joystick message from high level control
-{
-  if (Joints_EN.data)
+  if (Joints_data.EN)
   {
     g_Joints_EN_Joy = true;
   }
@@ -72,4 +68,7 @@ void joints_EN_cb(const std_msgs::Bool& Joints_EN)        //callback from joysti
   {
     g_Joints_EN_Joy = false;
   }
+
+  stepper1.setSpeed(forward_j_1);
+  stepper2.setSpeed(forward_j_2);
 }
