@@ -57,8 +57,8 @@ That means we can manually move the motor with our hands and read the encoder va
 
 void arm_joint_cb(const arm_package::Joints& Joints_data)  //callback function from subscribe on driving each joins
 {
-  int forward_j_1 = Joints_data.Joint_1;
-  int forward_j_2 = Joints_data.Joint_2;
+  int forward_j_1 = Joints_data.Joint_1;  //-1000 <-> 1000
+  int forward_j_2 = Joints_data.Joint_2;  //-1000 <-> 1000
 
   if (Joints_data.EN)
   {
