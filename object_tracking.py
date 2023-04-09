@@ -138,6 +138,7 @@ while(1):
             cv2.putText(imageFrame, "Blue Colour", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (255, 0, 0))
+                        #hello
               
     # Program Termination
     cv2.imshow("Mask", green_mask)
