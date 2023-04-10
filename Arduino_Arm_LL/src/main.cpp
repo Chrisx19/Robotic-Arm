@@ -6,8 +6,10 @@
 
 #include <AccelStepper.h>
 
-AccelStepper stepper1(1, 2, 3);
-AccelStepper stepper2(1, 4, 5);
+AccelStepper stepper1(1, 2, 3); //base
+AccelStepper stepper2(1, 4, 5); //shoulder
+AccelStepper stepper3(1, 6, 7); //elbow
+
 
 bool  g_Joints_EN_Joy = false;  //global default for joint enable
 const int Joints_EN_Pin = 13;   //out pin @ arduino mega
@@ -29,6 +31,7 @@ void setup()
   pinMode(Joints_EN_Pin, OUTPUT);
   stepper1.setMaxSpeed(1000000);
   stepper2.setMaxSpeed(1000000);
+  stepper3.setMaxSpeed(1000000);
   
 }
 
@@ -51,14 +54,16 @@ That means we can manually move the motor with our hands and read the encoder va
 
   stepper1.runSpeed();
   stepper2.runSpeed();
+  stepper3.runSpeed();
   nh.spinOnce();
   //  delay(1);
 }
 
 void arm_joint_cb(const arm_package::Joints& Joints_data)  //callback function from subscribe on driving each joins
 {
-  int forward_j_1 = Joints_data.Joint_1;  //-1000 <-> 1000
-  int forward_j_2 = Joints_data.Joint_2;  //-1000 <-> 1000
+  int16_t forward_j_1 = Joints_data.Joint_1;  //-1000 <-> 1000
+  int16_t forward_j_2 = Joints_data.Joint_2;  //-1000 <-> 1000
+  int16_t forward_j_3 = Joints_data.Joint_3;
 
   if (Joints_data.EN)
   {
@@ -71,4 +76,5 @@ void arm_joint_cb(const arm_package::Joints& Joints_data)  //callback function f
 
   stepper1.setSpeed(forward_j_1);
   stepper2.setSpeed(forward_j_2);
+  stepper3.setSpeed(forward_j_3);
 }
