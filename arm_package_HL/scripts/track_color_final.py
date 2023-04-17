@@ -5,8 +5,12 @@ from geometry_msgs.msg import Pose
 
 import cv2
 import numpy as np
+import time
 
 rospy.init_node("track_blob")
+
+prev_frame_time = 0
+new_frame_time = 0
 
 cap = cv2.VideoCapture(0)
 
@@ -26,7 +30,6 @@ while(1):
 	#converting frame(webcam i.e BGR) to HSV (hue-saturation-value)
 
 	hsv=cv2.cvtColor(webcam,cv2.COLOR_BGR2HSV)
-	
 
 	blue_lower=np.array([94, 80, 2],np.uint8)
 	blue_upper=np.array([120,255,255],np.uint8)
@@ -39,6 +42,15 @@ while(1):
 
 	webcam=cv2.circle(webcam, (260,68), 5, (255,0,0), -1)
 
+	font = cv2.FONT_HERSHEY_SIMPLEX
+	new_frame_time = time.time()
+	fps = 1/(new_frame_time-prev_frame_time)
+	prev_frame_time = new_frame_time
+	fps = int(fps)
+	fps = str(fps)
+
+	cv2.putText(webcam, fps, (19, 25), font, 0.8, (100, 255, 0), 1, cv2.LINE_AA)
+	
 			
 	#Tracking the Blue Color
 	contours,hierarchy = cv2.findContours(blue_mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
@@ -65,7 +77,6 @@ while(1):
 			s = 'x_d:'+ str(x_d) + '   y_d:'+str(y_d)				#output coordinates
 			
 			cv2.putText(webcam,s,(x-20,y-5),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255),1,cv2.LINE_AA)
-		
 
 			#ros stuff, (chris) got this below
 			if (abs(x_d-x_d_p)> 1 or abs(y_d-y_d_p)>1):								#calculation for driving to grab the block
@@ -78,7 +89,6 @@ while(1):
 				x_d_p=x_d
 				y_d_p=y_d
 			
-	
 	cv2.imshow("Mask",blue_mask)
 	cv2.imshow("Color Tracking",webcam)
 	if cv2.waitKey(1)== ord('q'):
