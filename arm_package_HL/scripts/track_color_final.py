@@ -71,20 +71,20 @@ while(1):
 			line_center_y = int((2*y+h)/2)
 			webcam=cv2.line(webcam, (260,68), (line_center_x, line_center_y), (0,255,0), 2)	#creates the line between reference and block
 		
-			x_d= (((2*y+h)/2)-68) * 0.06													#calculation distance
+			x_d= (((2*y+h)/2)-68) * 0.06							#calculation distance
 			y_d= (((2*x+w)/2)-260) * 0.075
 			
-			s = 'x_d:'+ str(x_d) + '   y_d:'+str(y_d)				#output coordinates
+			s = 'x_d:'+ str(x_d) + '   y_d:'+str(y_d)					#output coordinates
 			
 			cv2.putText(webcam,s,(x-20,y-5),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255),1,cv2.LINE_AA)
 
 			#ros stuff, (chris) got this below
-			if (abs(x_d-x_d_p)> 1 or abs(y_d-y_d_p)>1):								#calculation for driving to grab the block
+			if (abs(x_d-x_d_p)> 1 or abs(y_d-y_d_p)>1):					#calculation for driving to grab the block
 				target_pose.position.x=x_d*0.01
 				target_pose.position.y=y_d*0.01
 				target_pose.position.z=0.0
 
-				pub.publish(target_pose)											#ros publish
+				pub.publish(target_pose)						#ros publish
 			
 				x_d_p=x_d
 				y_d_p=y_d
