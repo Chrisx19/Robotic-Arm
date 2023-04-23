@@ -88,10 +88,10 @@ void Servo::write(int value)
   {
     if (value < 0)
       value = 0;
-    else if (value > 180)
-      value = 180;
+    else if (value > 300)
+      value = 300;
 
-    value = map(value, 0, 180, SERVO_MIN(), SERVO_MAX());
+    value = map(value, 0, 300, SERVO_MIN(), SERVO_MAX());
   }
   writeMicroseconds(value);
 }
