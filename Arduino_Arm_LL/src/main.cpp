@@ -5,12 +5,18 @@
 #include <SoftwareSerial.h>
 #include <math.h>
 
-#include <Servo.h>
+#include <VarSpeedServo.h>
 #include <AccelStepper.h>
 
 AccelStepper stepper1(1, 2, 3); //base
 AccelStepper stepper2(1, 4, 5); //shoulder
-Servo elbow_servo, wrist_servo;                  //Elbow
+VarSpeedServo elbow_servo, wrist_servo; 
+
+const int analogInPin = A0;
+int sensorValue = 0; 
+
+
+// const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 
 bool  g_Joints_EN_Joy = false;  //global default for joint enable
 const int Joints_EN_Pin = 13;   //out pin @ arduino mega
@@ -35,6 +41,7 @@ void setup()
   stepper2.setMaxSpeed(1000000);
   elbow_servo.attach(9);
   // elbow_servo.write(34);  //90~ 0degree is at home, 149~90 degree  34~-90 degrees
+
   
 }
 
@@ -46,6 +53,19 @@ void loop()
 /*The condition below is when we pressed 'A' on xbox, then the motor will be disabled.
 That means we can manually move the motor with our hands and read the encoder val for better 
                               autonomus assistance */
+ 
+  float degree_conversion = map(sensorValue, 3, 35, 0, 90);
+  
+  if (sensorValue > 35)
+  {
+    degree_conversion = 90;
+  }
+  else if (sensorValue < 3)
+  {
+    degree_conversion = 0;
+  }
+
+
   if (g_Joints_EN_Joy)                    
   {                                      
      digitalWrite(Joints_EN_Pin, HIGH);
@@ -68,18 +88,19 @@ void arm_joint_cb(const arm_package::Joints& Joints_data)  //callback function f
   float elbow_joint = Joints_data.Joint_3;     //-1.57 <-> 1.57
   // float wrist_joint = Joints_data.Joint_4;     //-1.57 <-> 1.57
 
-  float base_degree = (base_joint * 180)/ PI;
+  float base_degree = (base_joint * 180)/ PI;         // -90 <-> 90
   float shoulder_degree = (shoulder_joint * 180)/ PI;
   float elbow_degree = (elbow_joint * 180)/ PI;
   // float wrist_degree = (wrist_joint * 180)/ PI;
 
   float base = map(base_degree, -90, 90, -1000, 1000);
   float shoulder = map(shoulder_degree, -90, 90, -1000, 1000);
-  float elbow = map(elbow_degree, -90, 90, 34, 149);
+  float elbow = map(elbow_degree, -90, 90, 37, 142);
   // float wrist = map(wrist_degree, -90, 90, 34, 149);
 
   Test.data = base;
   test_pub.publish(&Test);
+
   if (Joints_data.EN)
   {
     g_Joints_EN_Joy = true;
@@ -91,6 +112,6 @@ void arm_joint_cb(const arm_package::Joints& Joints_data)  //callback function f
 
   stepper1.setSpeed(base);
   stepper2.setSpeed(shoulder);
-  elbow_servo.write(elbow);
+  elbow_servo.write(elbow, 20);
   // wrist_servo.write(wrist);
 }
