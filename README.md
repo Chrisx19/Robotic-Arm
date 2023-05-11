@@ -2,4 +2,4 @@
 ## Feb 2023 - Current
 Robotic Arm integrated team project for class competition on robotics.
 
-![image](https://user-images.githubusercontent.com/107272321/226090732-34089630-4eaa-4584-b1b8-d6aac22c8be9.png)
+![image](https://github.com/Chrisx19/Robotic-Arm/assets/107272321/b63eacaf-08a5-4c51-9b0e-c568b0ae642c)
