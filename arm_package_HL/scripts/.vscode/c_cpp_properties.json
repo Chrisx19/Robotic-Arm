@@ -1,0 +1,45 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/chris/arm_ws/devel/include/**",
+        "/home/chris/catkin_ws/devel/include/**",
+        "/home/chris/ws_moveit/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/chris/arm_ws/src/arm_package/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_planners/chomp/chomp_motion_planner/include/**",
+        "/home/chris/catkin_ws/src/gazebo_ros_pkgs/gazebo_plugins/include/**",
+        "/home/chris/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros/include/**",
+        "/home/chris/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros_control/include/**",
+        "/home/chris/ws_moveit/src/geometric_shapes/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_planners/chomp/chomp_interface/include/**",
+        "/home/chris/ws_moveit/src/moveit_resources/prbt_ikfast_manipulator_plugin/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_ros/benchmarks/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_plugins/moveit_ros_control_interface/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_ros/move_group/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_ros/occupancy_map_monitor/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_ros/robot_interaction/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_ros/moveit_servo/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_setup_assistant/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_plugins/moveit_simple_controller_manager/include/**",
+        "/home/chris/ws_moveit/src/moveit_visual_tools/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_planners/pilz_industrial_motion_planner/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_planners/pilz_industrial_motion_planner_testutils/include/**",
+        "/home/chris/ws_moveit/src/rviz_visual_tools/include/**",
+        "/home/chris/arm_ws/src/moveit/moveit_planners/sbpl/core/sbpl_interface/include/**",
+        "/home/chris/ws_moveit/src/srdfdom/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

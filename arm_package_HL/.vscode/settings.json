@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "*.tcc": "cpp"
+    },
+    "cmake.configureOnOpen": true,
+    "python.autoComplete.extraPaths": [
+        "/home/chris/senior_project_AV/devel/lib/python3/dist-packages",
+        "/home/chris/arm_ws/devel/lib/python3/dist-packages",
+        "/home/chris/ws_moveit/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/chris/senior_project_AV/devel/lib/python3/dist-packages",
+        "/home/chris/arm_ws/devel/lib/python3/dist-packages",
+        "/home/chris/ws_moveit/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "C_Cpp.errorSquiggles": "disabled"
+}

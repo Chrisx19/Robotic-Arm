@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    
+  <arg name="joy_config" default="ps3" />
+  <arg name="joy_dev" default="/dev/input/js2" />
+  <arg name="robot_config" default="robot" />
+
+  <node name="joy_joints" pkg="arm_package" type="joy_joint.py" />
+
+  <node respawn="true" pkg="joy" type="joy_node" name="joy">
+    <param name="dev" type="string" value="$(arg joy_dev)" />
+    <param name="deadzone" value="0.12" />
+    <param name="autorepeat_rate" value="25" />
+  </node>
+
+
+</launch>

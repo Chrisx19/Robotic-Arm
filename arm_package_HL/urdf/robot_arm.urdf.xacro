@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+
+<robot name="robot_arm" xmlns:xacro="http://ros.org/wiki/xacro">
+
+   <material name="greyish" >
+      <color rgba="0.6588235294117647 0.6431372549019608 0.5843137254901961 1.0" />
+   </material>
+
+  <material name="yellow" >
+    <color rgba="1.0 1.0 0.0784313725490196 1.0" />
+  </material>
+
+  <material name="orangebrown" >
+    <color rgba="0.7450980392156863 0.39215686274509803 0.0 1.0" />
+  </material>
+   
+  <material name="offwhite" >
+    <color rgba="1.0 1.0 0.8941176470588236 1.0" />
+  </material>
+
+  <link name="world"></link>
+
+  <joint name="fixed_base" type="fixed">
+  <parent link="world" />
+  <child link="base_link" />
+  <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+ 
+   <!-- Start of the arm -->
+  <link name="base_link">
+      <visual>
+         <origin rpy="0 0 0" xyz="0 0 0.035"/>
+            <geometry>
+               <box size="0.200 0.280 0.070"/>
+            </geometry>
+         <material name="orangebrown"/>
+      </visual>
+   </link>
+
+  <!-- Start of the joints-->
+  <!-- base_Joint_1 -->
+  <joint name="base_joint_1" type="revolute">
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="-1.57" upper="1.57" velocity="0.5"/> <!--  velocity: radius / sec or m/s ||  effort: Newton or N*m-->
+    <origin rpy="0 0 0" xyz="0 0 0.09"/>
+    <parent link="base_link"/>
+    <child link="cylinder_link"/>
+  </joint>
+
+  <link name="cylinder_link">
+    <visual>
+        <origin rpy="0 0 0" xyz="0 0 0.0"/>
+          <geometry>
+              <cylinder length="0.02" radius="0.0889"/> <!-- radius and length -->
+          </geometry>
+        <material name="greyish"/>
+    </visual>
+  </link>
+
+   <!-- shoulder_Joint_2 -->
+   <joint name="shoulder_joint_2" type="revolute">
+      <axis xyz="1 0 0"/>
+      <limit effort="1000.0" lower="-1.57" upper="1.57" velocity="0.5"/> <!--  velocity: radius / sec or m/s ||  effort: Newton or N*m-->
+      <origin rpy="0 0 0" xyz="0 0 0.046"/>
+      <parent link="cylinder_link"/>
+      <child link="bicep_link"/>
+   </joint>
+
+   <link name="bicep_link">
+      <visual>
+         <origin rpy="0 0 0" xyz="0 0 0.096"/>
+            <geometry>
+               <box size="0.0025 0.043 0.240"/>
+            </geometry>
+         <material name="offwhite"/>
+      </visual>
+   </link>
+   
+   <!-- elbow_Joint_3 -->
+   <joint name="elbow_joint_3" type="revolute">
+      <axis xyz="1 0 0"/>
+      <limit effort="1000.0" lower="-1.57" upper="1.57" velocity="0.5"/> <!--  velocity: radius / sec or m/s ||  effort: Newton or N*m-->
+      <origin rpy="0 0 0" xyz="0.0025 0 0.144"/>
+      <parent link="bicep_link"/>
+      <child link="elbow_link"/>
+   </joint>
+
+   <link name="elbow_link">
+      <visual>
+         <origin rpy="0 0 0" xyz="0 0 0.072"/>
+            <geometry>
+               <box size="0.0025 0.043 0.192"/>
+            </geometry>
+         <material name="offwhite"/>
+      </visual>
+   </link>
+
+   <!-- wrist_Joint_4_And_Link -->
+   <joint name="wrist_joint_4" type="revolute">
+      <axis xyz="1 0 0"/>
+      <limit effort="1000.0" lower="-1.57" upper="1.57" velocity="0.5"/> <!--  velocity: radius / sec or m/s ||  effort: Newton or N*m-->
+      <origin rpy="0 0 0" xyz="0 0 0.144"/>
+      <parent link="elbow_link"/>
+      <child link="wrist_link"/>
+   </joint>
+
+   <link name="wrist_link">
+      <visual>
+         <origin rpy="0 0 0" xyz="0.03945 0 0.012"/>
+            <geometry>
+               <box size="0.048 0.048 0.072"/>/
+            </geometry>
+         <material name="offwhite"/>
+      </visual>
+   </link>
+
+   <!-- Roll_Joint_5_And_Link -->
+   <joint name="roll_wrist_joint_5" type="revolute">
+      <axis xyz="0 0 1"/>
+      <limit effort="1000.0" lower="-1.57" upper="1.57" velocity="0.5"/> <!--  velocity: radius / sec or m/s ||  effort: Newton or N*m-->
+      <origin rpy="0 0 0" xyz="0.03945 0 0.05044"/>
+      <parent link="wrist_link"/>
+      <child link="end_effector_link"/>
+   </joint>
+
+   <link name="end_effector_link">
+      <visual>
+         <origin rpy="0 0 0" xyz="0 0 0.05644"/>
+            <geometry>
+               <cylinder length="0.11288" radius="0.003"/> <!-- radius and length -->
+            </geometry>
+         <material name="yellow"/>
+      </visual>
+   </link>
+   
+</robot>
