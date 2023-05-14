@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+import rospy
 import cv2
 import numpy as np
 import time
 import math
 from realsense_depth import *
+from arm_package.msg import HL_Data
 
 prev_frame_time = 0
 new_frame_time = 0
@@ -16,6 +19,10 @@ y_d_p=0.0
 
 point = (400, 300)
 
+rospy.init_node("Color_Detect")
+cam_distance = rospy.Publisher("/hl_data", HL_Data, queue_size=10)
+Camera_data = HL_Data()
+
 #call for depth detection
 def show_distance(x, y):
     global point
@@ -23,7 +30,7 @@ def show_distance(x, y):
 
 cv2.namedWindow("Color Tracking")
 
-while(1):
+while not rospy.is_shutdown():
     ret, depth_frame, webcam = cap.get_frame()
     hsv=cv2.cvtColor(webcam,cv2.COLOR_BGR2HSV)
 
@@ -254,6 +261,8 @@ while(1):
 
     #findGreen(green_mask, webcam, x_d, y_d, x_d_p, y_d_p)
     findBlue(blue_mask, webcam, x_d, y_d, x_d_p, y_d_p)
+    Camera_data.Camera_Distance = distance
+    cam_distance.publish(Camera_data)
     #findRed(red_mask, webcam, x_d, y_d, x_d_p, y_d_p)
 
     cv2.imshow("depth frame", depth_frame)
@@ -263,5 +272,6 @@ while(1):
     if cv2.waitKey(1)== ord('q'):
         break
 
+rospy.sleep(0.1)
 cap.release()
 cv2.destroyAllWindows()

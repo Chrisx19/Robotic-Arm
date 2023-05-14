@@ -1,5 +1,5 @@
 #include <ros.h>                  //ROS API for cpp
-#include <arm_package/Joints.h>
+#include <arm_package/HL_Data.h>
 #include <std_msgs/Float64.h>   
 #include <std_msgs/Bool.h>
 #include <SoftwareSerial.h>
@@ -7,6 +7,7 @@
 #include <arm_package/Floats_array.h>
 #include <VarSpeedServo.h>
 #include <AccelStepper.h>
+
 
 #define elbow_pin      A2
 #define wrist_pin      A3
@@ -31,10 +32,10 @@ bool  g_Joints_EN_Joy = false;  //global default for joint enable
 const int Joints_EN_Pin = 13;   //out pin @ arduino mega
 
 ros::NodeHandle  nh;                                          //object 
-void arm_joint_cb(const arm_package::Joints& Joints_data);   //init function
+void arm_joint_cb(const arm_package::HL_Data& Joints_data);   //init function
 void read_analog(void);
 
-ros::Subscriber<arm_package::Joints> Arm_joint_sub("joints", &arm_joint_cb);       //ros sub
+ros::Subscriber<arm_package::HL_Data> Arm_joint_sub("hl_data", &arm_joint_cb);       //ros sub
 
 std_msgs::Float64 Test;
 ros::Publisher test_pub("test", &Test);
@@ -88,7 +89,7 @@ That means we can manually move the motor with our hands and read the encoder va
   //  delay(1);
 }
 
-void arm_joint_cb(const arm_package::Joints& Joints_data)  //callback function from subscribe on driving each joins
+void arm_joint_cb(const arm_package::HL_Data& Joints_data)  //callback function from subscribe on driving each joins
 {
   g_Joints_EN_Joy = Joints_data.EN;
 
