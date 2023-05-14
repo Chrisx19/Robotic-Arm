@@ -1,5 +1,5 @@
-#ifndef _ROS_arm_package_HL_Data_h
-#define _ROS_arm_package_HL_Data_h
+#ifndef _ROS_arm_package_Arm_h
+#define _ROS_arm_package_Arm_h
 
 #include <stdint.h>
 #include <string.h>
@@ -9,11 +9,13 @@
 namespace arm_package
 {
 
-  class HL_Data : public ros::Msg
+  class Arm : public ros::Msg
   {
     public:
-      typedef bool _EN_type;
-      _EN_type EN;
+      typedef bool _Arm_mode_type;
+      _Arm_mode_type Arm_mode;
+      typedef bool _Motor_EN_type;
+      _Motor_EN_type Motor_EN;
       typedef int16_t _Camera_Distance_type;
       _Camera_Distance_type Camera_Distance;
       typedef float _Joint_1_type;
@@ -29,8 +31,9 @@ namespace arm_package
       typedef bool _Gripper_type;
       _Gripper_type Gripper;
 
-    HL_Data():
-      EN(0),
+    Arm():
+      Arm_mode(0),
+      Motor_EN(0),
       Camera_Distance(0),
       Joint_1(0),
       Joint_2(0),
@@ -47,10 +50,17 @@ namespace arm_package
       union {
         bool real;
         uint8_t base;
-      } u_EN;
-      u_EN.real = this->EN;
-      *(outbuffer + offset + 0) = (u_EN.base >> (8 * 0)) & 0xFF;
-      offset += sizeof(this->EN);
+      } u_Arm_mode;
+      u_Arm_mode.real = this->Arm_mode;
+      *(outbuffer + offset + 0) = (u_Arm_mode.base >> (8 * 0)) & 0xFF;
+      offset += sizeof(this->Arm_mode);
+      union {
+        bool real;
+        uint8_t base;
+      } u_Motor_EN;
+      u_Motor_EN.real = this->Motor_EN;
+      *(outbuffer + offset + 0) = (u_Motor_EN.base >> (8 * 0)) & 0xFF;
+      offset += sizeof(this->Motor_EN);
       union {
         int16_t real;
         uint16_t base;
@@ -125,11 +135,19 @@ namespace arm_package
       union {
         bool real;
         uint8_t base;
-      } u_EN;
-      u_EN.base = 0;
-      u_EN.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      this->EN = u_EN.real;
-      offset += sizeof(this->EN);
+      } u_Arm_mode;
+      u_Arm_mode.base = 0;
+      u_Arm_mode.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      this->Arm_mode = u_Arm_mode.real;
+      offset += sizeof(this->Arm_mode);
+      union {
+        bool real;
+        uint8_t base;
+      } u_Motor_EN;
+      u_Motor_EN.base = 0;
+      u_Motor_EN.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      this->Motor_EN = u_Motor_EN.real;
+      offset += sizeof(this->Motor_EN);
       union {
         int16_t real;
         uint16_t base;
@@ -205,8 +223,8 @@ namespace arm_package
      return offset;
     }
 
-    virtual const char * getType() override { return "arm_package/HL_Data"; };
-    virtual const char * getMD5() override { return "80c6a8affbfdc0c23fb5c1123155541a"; };
+    virtual const char * getType() override { return "arm_package/Arm"; };
+    virtual const char * getMD5() override { return "9fff0f42e1bdef75e550d465f8852804"; };
 
   };
 

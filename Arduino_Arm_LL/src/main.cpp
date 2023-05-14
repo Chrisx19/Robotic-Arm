@@ -1,41 +1,56 @@
 #include <ros.h>                  //ROS API for cpp
-#include <arm_package/HL_Data.h>
+#include <arm_package/Arm.h>
+#include <arm_package/Gun.h>
 #include <std_msgs/Float64.h>   
 #include <std_msgs/Bool.h>
 #include <SoftwareSerial.h>
 #include <math.h>
-#include <arm_package/Floats_array.h>
 #include <VarSpeedServo.h>
 #include <AccelStepper.h>
-
 
 #define elbow_pin      A2
 #define wrist_pin      A3
 #define wrist_roll_pin A4
 
+#define waist       0 
+#define shoulder    1
+#define elbow       2
+#define wrist       3
+#define wrist_roll  4
+
+#define safety 11
+#define trigger 12
+
 int16_t elbow_val_raw = 0,
         wrist_val_raw = 0,
         wrist_roll_val_raw = 0; 
 
-float elbow = 0,
-      wrist = 0,
-      wrist_roll = 0;
+float elbow_temp = 0,
+      wrist_temp = 0,
+      wrist_roll_temp = 0;
 
 AccelStepper    waist_joint1(1, 2, 3), //base
              shoulder_joint2(1, 4, 5); //shoulder
 
-VarSpeedServo elbow_joint3, wrist_joint4, wrist_roll_joint5;
+float joint[6] = {0, 0, 0, 0, 0};
+
+VarSpeedServo elbow_joint3, wrist_joint4, wrist_roll_joint5, grip_servo,
+              gun_servo;
 
 int sensorValue = 0; 
 
 bool  g_Joints_EN_Joy = false;  //global default for joint enable
 const int Joints_EN_Pin = 13;   //out pin @ arduino mega
 
+const int buttonOne = 12;
+
 ros::NodeHandle  nh;                                          //object 
-void arm_joint_cb(const arm_package::HL_Data& Joints_data);   //init function
+void arm_cb(const arm_package::Arm& Arm_data);   //init function
+void gun_cb(const arm_package::Gun& Gun_data);
 void read_analog(void);
 
-ros::Subscriber<arm_package::HL_Data> Arm_joint_sub("hl_data", &arm_joint_cb);       //ros sub
+ros::Subscriber<arm_package::Arm> Arm_sub("arm_data", &arm_cb);       //ros sub
+ros::Subscriber<arm_package::Gun> Gun_sub("gun_data", &gun_cb); 
 
 std_msgs::Float64 Test;
 ros::Publisher test_pub("test", &Test);
@@ -44,7 +59,8 @@ void setup()
 {
   nh.initNode();
   nh.advertise(test_pub);
-  nh.subscribe(Arm_joint_sub);
+  nh.subscribe(Arm_sub);
+  nh.subscribe(Gun_sub);
 
   // Serial.begin(9600);
   pinMode(Joints_EN_Pin, OUTPUT);
@@ -53,7 +69,13 @@ void setup()
   elbow_joint3.attach(6);
   wrist_joint4.attach(7);
   wrist_roll_joint5.attach(8);
+  grip_servo.attach(9);
+  gun_servo.attach(10);
   // elbow_servo.write(34);  //90~ 0degree is at home, 149~90 degree  34~-90 degrees
+
+  pinMode(trigger, OUTPUT); //trigger
+  pinMode(safety, OUTPUT); //safety
+  pinMode(buttonOne, INPUT_PULLUP);
 
 }
 
@@ -62,10 +84,6 @@ void loop()
   //  velocity.data = drive_duty_cycle;
   //  vel_cmd.publish( &velocity );
   
-/*The condition below is when we pressed 'A' on xbox, then the motor will be disabled.
-That means we can manually move the motor with our hands and read the encoder val for better 
-                              autonomus assistance */
- 
   if (g_Joints_EN_Joy)                    
   {                                      
      digitalWrite(Joints_EN_Pin, HIGH);
@@ -79,9 +97,12 @@ That means we can manually move the motor with our hands and read the encoder va
   waist_joint1.runSpeed();
   shoulder_joint2.runSpeed();
 
-  // elbow_joint3.slowmove(90, 15);
-  // wrist_joint4.slowmove(90, 15);
-  // wrist_roll_joint5.slowmove(90, 15);
+  waist_joint1.setSpeed(joint[waist]);
+  shoulder_joint2.setSpeed(joint[shoulder]);
+
+  elbow_joint3.slowmove(joint[elbow], 15); //88 mid
+  wrist_joint4.slowmove(joint[wrist], 15);
+  wrist_roll_joint5.slowmove(joint[wrist_roll], 15);
 
   test_pub.publish(&Test);
 
@@ -89,67 +110,75 @@ That means we can manually move the motor with our hands and read the encoder va
   //  delay(1);
 }
 
-void arm_joint_cb(const arm_package::HL_Data& Joints_data)  //callback function from subscribe on driving each joins
+void arm_cb(const arm_package::Arm& Arm_data)  //callback function from subscribe on driving each joins
 {
-  g_Joints_EN_Joy = Joints_data.EN;
+  g_Joints_EN_Joy = Arm_data.Motor_EN;
 
-  float base_joint = Joints_data.Joint_1;       //-1.57 <-> 1.57
-  float shoulder_joint = Joints_data.Joint_2;  //-1.57 <-> 1.57
-  float elbow_joint = Joints_data.Joint_3;     //-1.57 <-> 1.57
-  float wrist_joint = Joints_data.Joint_4;     //-1.57 <-> 1.57
-  float wrist_roll_joint = Joints_data.Joint_5;     //-1.57 <-> 1.57
+  float base_joint       = Arm_data.Joint_1;       //-1.57 <-> 1.57
+  float shoulder_joint   = Arm_data.Joint_2;  //-1.57 <-> 1.57
+  float elbow_joint      = Arm_data.Joint_3;     //-1.57 <-> 1.57
+  float wrist_joint      = Arm_data.Joint_4;     //-1.57 <-> 1.57
+  float wrist_roll_joint = Arm_data.Joint_5;     //-1.57 <-> 1.57
 
   float base_degree = (base_joint * 180)/ PI;         // -90 <-> 90
   float shoulder_degree = (shoulder_joint * 180)/ PI;
   // float elbow_degree = (elbow_joint * 180)/ PI;
   // float wrist_degree = (wrist_joint * 180)/ PI;
 
-  float base = map(base_degree, -90, 90, -1000, 1000);
-  float shoulder = map(shoulder_degree, -90, 90, -1000, 1000);
+  joint[waist] = map(base_degree, -90, 90, -1000, 1000);
+  joint[shoulder] = map(shoulder_degree, -90, 90, -1000, 1000);
   // float elbow = map(elbow_degree, -90, 90, 36, 140);  //position
   // float wrist = map(wrist_degree, -90, 90, 34, 149);
 
   //=====================================================
-  elbow += elbow_joint; //we have to send min 36 and max is 140
-  wrist += wrist_joint; //we have to send min 36 and max is 140
-  wrist_roll += wrist_roll_joint; //we have to send min 36 and max is 140
+  elbow_temp += elbow_joint; //we have to send min 36 and max is 140
+  wrist_temp += wrist_joint; //we have to send min 36 and max is 140
+  wrist_roll_temp += wrist_roll_joint; //we have to send min 36 and max is 140
 
-  float elbow_final = elbow + 88;
-  float wrist_final = wrist + 88.5;
-  float wrist_roll_final = wrist_roll + 90;
+  joint[elbow] = elbow + 88;
+  joint[wrist] = wrist + 88.5;
+  joint[wrist_roll] = wrist_roll + 90;
 
-  if ( elbow_final <= 36) {      //elbow joint3
-    elbow_final = 36;
+  if ( joint[elbow] <= 36) {      //elbow joint3
+    joint[elbow] = 36;
   }
-  else if (elbow_final >= 140){
-    elbow_final = 140;
-  }
-
-  if ( wrist_final <= 34) {      //wrist joint4
-    wrist_final = 34;
-  }
-  else if (wrist_final >= 143){
-    wrist_final = 143;
+  else if (joint[elbow] >= 140){
+    joint[elbow] = 140;
   }
 
-  if ( wrist_roll_final <= 35) {      //wrist_roll joint5
-    wrist_roll_final = 35;
+  if ( joint[wrist] <= 34) {      //wrist joint4
+    joint[wrist] = 34;
   }
-  else if (wrist_roll_final >= 145){
-    wrist_roll_final = 145;
+  else if (joint[wrist] >= 143){
+    joint[wrist] = 143;
+  }
+
+  if ( joint[wrist_roll] <= 35) {      //wrist_roll joint5
+    joint[wrist_roll] = 35;
+  }
+  else if (joint[wrist_roll] >= 145){
+    joint[wrist_roll] = 145;
   }
   
-  //===========================================================
-
-  waist_joint1.setSpeed(base);
-  shoulder_joint2.setSpeed(shoulder);
-
-  elbow_joint3.slowmove(elbow_final, 15); //88 mid
-  wrist_joint4.slowmove(wrist_final, 15);
-  wrist_roll_joint5.slowmove(wrist_roll_final, 15);
-
-  Test.data = elbow_final;
+  Test.data = joint[wrist_roll];
   
+}
+
+void gun_cb(const arm_package::Gun& Gun_data)
+{
+  bool button1 = digitalRead(buttonOne);
+
+  if(button1==false)
+  {
+    //bool button1 = digitalRead(buttonOne);
+    digitalWrite(safety,HIGH); //activate safety
+    //delay(500);
+    digitalWrite(trigger, HIGH); //activate trigger
+    delay(1);
+
+    digitalWrite(safety, LOW); //disable safety
+    digitalWrite(trigger, LOW);  //disable trigger
+  }
 }
 
 void read_analog(void)

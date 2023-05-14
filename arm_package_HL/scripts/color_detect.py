@@ -5,7 +5,7 @@ import numpy as np
 import time
 import math
 from realsense_depth import *
-from arm_package.msg import HL_Data
+from std_msgs.msg import Int16
 
 prev_frame_time = 0
 new_frame_time = 0
@@ -20,8 +20,7 @@ y_d_p=0.0
 point = (400, 300)
 
 rospy.init_node("Color_Detect")
-cam_distance = rospy.Publisher("/hl_data", HL_Data, queue_size=10)
-Camera_data = HL_Data()
+cam_distance_pub = rospy.Publisher("/cam_distance", Int16, queue_size=10)
 
 #call for depth detection
 def show_distance(x, y):
@@ -261,8 +260,7 @@ while not rospy.is_shutdown():
 
     #findGreen(green_mask, webcam, x_d, y_d, x_d_p, y_d_p)
     findBlue(blue_mask, webcam, x_d, y_d, x_d_p, y_d_p)
-    Camera_data.Camera_Distance = distance
-    cam_distance.publish(Camera_data)
+    cam_distance_pub.publish(distance)
     #findRed(red_mask, webcam, x_d, y_d, x_d_p, y_d_p)
 
     cv2.imshow("depth frame", depth_frame)
