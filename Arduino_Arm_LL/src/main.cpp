@@ -25,9 +25,9 @@ int16_t elbow_val_raw = 0,
         wrist_val_raw = 0,
         wrist_roll_val_raw = 0; 
 
-float elbow_temp = 0,
-      wrist_temp = 0,
-      wrist_roll_temp = 0;
+float elbow_temp = 0,   //0
+      wrist_temp = 0,   //0
+      wrist_roll_temp = 0;  //0
 
 AccelStepper    waist_joint1(1, 2, 3), //base
              shoulder_joint2(1, 4, 5); //shoulder
@@ -71,7 +71,10 @@ void setup()
   wrist_roll_joint5.attach(8);
   grip_servo.attach(9);
   gun_servo.attach(10);
-  // elbow_servo.write(34);  //90~ 0degree is at home, 149~90 degree  34~-90 degrees
+
+  joint[elbow]      = 88;
+  joint[wrist]      = 88.5;
+  joint[wrist_roll] = 90;
 
   pinMode(trigger, OUTPUT); //trigger
   pinMode(safety, OUTPUT); //safety
@@ -86,11 +89,11 @@ void loop()
   
   if (g_Joints_EN_Joy)                    
   {                                      
-     digitalWrite(Joints_EN_Pin, HIGH);
+     digitalWrite(Joints_EN_Pin, LOW);
   }
   else
   {
-    digitalWrite(Joints_EN_Pin, LOW);
+    digitalWrite(Joints_EN_Pin, HIGH);
   }
 
 
@@ -125,19 +128,29 @@ void arm_cb(const arm_package::Arm& Arm_data)  //callback function from subscrib
   // float elbow_degree = (elbow_joint * 180)/ PI;
   // float wrist_degree = (wrist_joint * 180)/ PI;
 
+
+  if(Arm_data.Gripper)
+  {
+    grip_servo.write(95);
+  }
+  else
+  {
+    grip_servo.write(40);
+  }
+
   joint[waist] = map(base_degree, -90, 90, -1000, 1000);
   joint[shoulder] = map(shoulder_degree, -90, 90, -1000, 1000);
   // float elbow = map(elbow_degree, -90, 90, 36, 140);  //position
   // float wrist = map(wrist_degree, -90, 90, 34, 149);
 
   //=====================================================
-  elbow_temp += elbow_joint; //we have to send min 36 and max is 140
+  elbow_temp = elbow_temp + elbow_joint; //we have to send min 36 and max is 140
   wrist_temp += wrist_joint; //we have to send min 36 and max is 140
   wrist_roll_temp += wrist_roll_joint; //we have to send min 36 and max is 140
 
-  joint[elbow] = elbow + 88;
-  joint[wrist] = wrist + 88.5;
-  joint[wrist_roll] = wrist_roll + 90;
+  joint[elbow] = elbow_temp + 88;
+  joint[wrist] = wrist_temp + 88.5;
+  joint[wrist_roll] = wrist_roll_temp + 90;
 
   if ( joint[elbow] <= 36) {      //elbow joint3
     joint[elbow] = 36;
@@ -160,7 +173,7 @@ void arm_cb(const arm_package::Arm& Arm_data)  //callback function from subscrib
     joint[wrist_roll] = 145;
   }
   
-  Test.data = joint[wrist_roll];
+  Test.data =  joint[elbow];
   
 }
 
