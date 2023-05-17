@@ -73,8 +73,8 @@ void loop() {
   waist_joint1.runSpeed();
   shoulder_joint2.runSpeed();
 
-  uint16_t joint_adc_min[5] = {0, 268, 36, 32, 34};
-  uint16_t joint_adc_max[5] = {0, 302, 129, 127, 133};
+  uint16_t joint_adc_min[5] = {160, 268, 36, 32, 34};
+  uint16_t joint_adc_max[5] = {221, 302, 129, 127, 133};
 
 //  int16_t waist =      map(waist_cmd,      -30, 90, 302, 36);
   int16_t shoulder =   map(shoulder_cmd,   -30, 90, 302, 268);
