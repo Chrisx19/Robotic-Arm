@@ -73,19 +73,20 @@ void loop() {
   waist_joint1.runSpeed();
   shoulder_joint2.runSpeed();
 
-  uint16_t joint_adc_min[5] = {0, 302, 36, 32, 34};
-  uint16_t joint_adc_max[5] = {0, 268, 129, 127, 133};
+  uint16_t joint_adc_min[5] = {0, 268, 36, 32, 34};
+  uint16_t joint_adc_max[5] = {0, 302, 129, 127, 133};
 
-  int16_t waist =      map(waist_cmd,      -30, 90, 302, 36);
+//  int16_t waist =      map(waist_cmd,      -30, 90, 302, 36);
   int16_t shoulder =   map(shoulder_cmd,   -30, 90, 302, 268);
   int16_t elbow =      map(elbow_cmd,       90, -90, 36, 140);          //min 35(servo write cmd)~ -90 degree ; max 140~ 90 degree/////////////MID ~ 88
   int16_t wrist =      map(wrist_cmd,      -90, 90, 34, 143);          //min 34~ -90 degree ; max 143~ 90 degree
   int16_t wrist_roll = map(wrist_roll_cmd, -90, 90, 35, 145);          //min 35~ -90 degree ; max 135~ 90 degree
 
-  waist_val_raw = max_min(waist_val_raw,      joint_adc_min[0], joint_adc_max[0]);          //raw_val from ADC, minimum val_adc, maximum val_adc
-  shoulder_val_raw = max_min(shoulder_val_raw,   268, 302);        
-  elbow_val_raw = max_min(elbow_val_raw,      joint_adc_min[2], joint_adc_max[2]);
-  wrist_val_raw = max_min(wrist_val_raw,      joint_adc_min[3], joint_adc_max[3]);          
+// There was a bug here before when it was using void but not its good with return func
+  waist_val_raw      = max_min(waist_val_raw,      joint_adc_min[0], joint_adc_max[0]);          //raw_val from ADC, minimum val_adc, maximum val_adc
+  shoulder_val_raw   = max_min(shoulder_val_raw,   joint_adc_min[1], joint_adc_max[1]);        
+  elbow_val_raw      = max_min(elbow_val_raw,      joint_adc_min[2], joint_adc_max[2]);
+  wrist_val_raw      = max_min(wrist_val_raw,      joint_adc_min[3], joint_adc_max[3]);          
   wrist_roll_val_raw = max_min(wrist_roll_val_raw, joint_adc_min[4], joint_adc_max[4]);
 
   int16_t  shoulder_degree =   map(shoulder_val_raw,   joint_adc_min[1], joint_adc_max[1], -30, 90); 
@@ -94,7 +95,7 @@ void loop() {
   int16_t  wrist_roll_degree = map(wrist_roll_val_raw, joint_adc_min[4], joint_adc_max[4], -90, 90);
 
 //*********************************Motor Commands***********************************
-  stepper_position_1(waist, waist_cmd, 500 ,10);
+  stepper_position_1(waist_val_raw, waist_cmd, 500 ,10);
   stepper_position_2(shoulder_val_raw, shoulder_cmd, 500 ,10);
   elbow_joint3.slowmove(elbow, 15);
   wrist_joint4.slowmove(wrist, 15);
@@ -102,11 +103,11 @@ void loop() {
 //*********************************Motor Commands***********************************
 
 
-    Serial.print("       Raw_val = ");       //debug for Testing 
-    Serial.print(shoulder_val_raw);
-    Serial.print("\t");
-    Serial.print("       Degree = ");
-    Serial.println(shoulder_degree);
+//    Serial.print("       Raw_val = ");       //debug for Testing 
+//    Serial.print(shoulder_val_raw);
+//    Serial.print("\t");
+//    Serial.print("       Degree = ");
+//    Serial.println(shoulder_degree);
 
 //  Serial.print("       Test = ");
 //  Serial.println(shoulder);
@@ -216,14 +217,14 @@ void read_analog(void)
   //*********************************Servo Analog***********************************
 
 //  *********************************Debug for Analog***********************************
-//  Serial.print(waist_val_raw);      
-//  Serial.print("\t");
-//  Serial.print(shoulder_val_raw);      
-//  Serial.print("\t");
-//  Serial.print(elbow_val_raw);      
-//  Serial.print("\t");
-//  Serial.print(wrist_val_raw); 
-//  Serial.print("\t");
-//  Serial.println(wrist_roll_val_raw);  
+  Serial.print(waist_val_raw);      
+  Serial.print("\t");
+  Serial.print(shoulder_val_raw);      
+  Serial.print("\t");
+  Serial.print(elbow_val_raw);      
+  Serial.print("\t");
+  Serial.print(wrist_val_raw); 
+  Serial.print("\t");
+  Serial.println(wrist_roll_val_raw);  
 
 }
