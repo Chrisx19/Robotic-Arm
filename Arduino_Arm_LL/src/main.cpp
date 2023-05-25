@@ -51,14 +51,14 @@ void read_analog(void);
 ros::Subscriber<arm_package::Arm> Arm_sub("arm_data", &arm_cb);       //ros sub
 ros::Subscriber<arm_package::Gun> Gun_sub("gun_data", &gun_cb); 
 
-arm_package::Feedback Potentiometer;
-ros::Publisher Pot_pub("pot", &Potentiometer);
+arm_package::Feedback Potentiometer;            //(Publish) - ROS variable 'Potentiometer'
+ros::Publisher Pot_pub("pot", &Potentiometer);  //(Publish) - init publish
 void setup()
 {
   nh.initNode();
   nh.subscribe(Arm_sub);
   nh.subscribe(Gun_sub);
-  nh.advertise(Pot_pub);
+  nh.advertise(Pot_pub);                        //(Publish) - Publisher caller
 
   pinMode(Joints_EN_Pin, OUTPUT);
   waist_joint1.setMaxSpeed(1000000);
@@ -117,7 +117,7 @@ void loop()
   waist_joint1.runSpeed();
   shoulder_joint2.runSpeed();
 
-  Pot_pub.publish(&Potentiometer);
+  Pot_pub.publish(&Potentiometer);      //(Publish) - Display pub value on loop
 
   nh.spinOnce();
 }
@@ -209,9 +209,9 @@ void read_analog(void)
   wrist_val_raw      = analogRead(wrist_pin)      / (685 / g_target_adc_raw[3]);  //685 max
   wrist_roll_val_raw = analogRead(wrist_roll_pin) / (685 / g_target_adc_raw[4]);
 
-  Potentiometer.Pot_1 = waist_val_raw;
-  Potentiometer.Pot_2 = shoulder_val_raw;
-  Potentiometer.Pot_3 = elbow_val_raw;
+  Potentiometer.Pot_1 = waist_val_raw;          //(Publish) - Using Feedback.h custom message file
+  Potentiometer.Pot_2 = shoulder_val_raw;       //(Publish) .h- REF:https://github.com/Chrisx19/Robotic-Arm/blob/master/Arduino_Arm_LL/lib/Rosserial_Arduino_Library/src/arm_package/Feedback.h
+  Potentiometer.Pot_3 = elbow_val_raw;          //REF(.msg): https://github.com/Chrisx19/Robotic-Arm/blob/master/arm_package_HL/msg/Feedback.msg
   Potentiometer.Pot_4 = wrist_val_raw;
   Potentiometer.Pot_5 = wrist_roll_val_raw;
 }
